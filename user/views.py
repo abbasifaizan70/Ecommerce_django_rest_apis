@@ -36,15 +36,58 @@ def signup(request):
         user.save()
         token, _ = Token.objects.get_or_create(user=user)
         response = {
+          "user" : {
             "email": user.email,
+            "username": user.username,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "token": token.key,
+          }, 
+          "token": access_token,
         }
         return Response(response, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@swagger_auto_schema(
+    method='post',
+    operation_description='Authenticate a user and return a token upon successful login.',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username of the user.'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password for the user.'),
+        },
+        required=['username', 'password']
+    ),
+    responses={
+        status.HTTP_200_OK: openapi.Response(
+            description='Successfully authenticated',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'user': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email of the user.'),
+                            'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First name of the user.'),
+                            'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last name of the user.'),
+                            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username of the user.'),
+                        }
+                    ),
+                    'token': openapi.Schema(type=openapi.TYPE_STRING, description='Access token for the user.')
+                }
+            )
+        ),
+        status.HTTP_401_UNAUTHORIZED: openapi.Response(
+            description='Invalid credentials',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING, description='Error message.')
+                }
+            )
+        )
+    }
+)
 @api_view(["POST"])
 def login_view(request):
     """
@@ -57,19 +100,24 @@ def login_view(request):
         Response: A JSON response containing user information and a token.
 
     """
-    email = request.data.get("email")
+    username = request.data.get("username")
     password = request.data.get("password")
 
-    user = authenticate(request, username=email, password=password)
-
+    user = authenticate(request, username=username, password=password)
+    print(username, password)
     if user is not None:
         login(request, user)
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
         token, _ = Token.objects.get_or_create(user=user)
         response = {
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "token": token.key,
+            "user" : {
+              "email": user.email,
+              "first_name": user.first_name,
+              "last_name": user.last_name,
+              "username": user.username,
+            },
+            "token": access_token,
         }
         return Response(response, status=status.HTTP_200_OK)
     else:
@@ -143,7 +191,8 @@ def google_auth(request):
         )
         user.save()
 
-    token1 = RefreshToken.for_user(user)  # generate token without username & password
+    access_token = str(refresh.access_token)  
+    token1 = RefreshToken.for_user(user)
     token, _ = Token.objects.get_or_create(user=user)
     response = {
         "email": user.email,
@@ -151,6 +200,6 @@ def google_auth(request):
         "last_name": user.last_name,
         "access": str(token1.access_token),
         "refresh": str(token1),
-        "token": token.key,
+        "token": access_token,
     }
     return Response(response, status=status.HTTP_200_OK)

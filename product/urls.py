@@ -4,14 +4,14 @@ from . import views
 urlpatterns = [
     path("categories/", views.CategoryListView.as_view(), name="category-list"),
     path(
-        "<slug:category_slug>/",
+        "categories/<slug:category_slug>/",
         views.CategoryRetrieveView.as_view(),
         name="category-detail",
     ),
-    # Product URLs
+    path('search/', views.ProductSearchView.as_view(), name='product-search'),
     path("", views.ProductListView.as_view(), name="product-list"),
     path(
-        "<slug:category_slug>/<slug:product_slug>/",
+        "<int:product_id>",
         views.ProductRetrieveView.as_view(),
         name="product-detail",
     ),

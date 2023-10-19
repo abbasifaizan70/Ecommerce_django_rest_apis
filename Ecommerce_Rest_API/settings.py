@@ -33,8 +33,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["0.0.0.0", "localhost", "*"]
 
 
-# Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -55,8 +53,6 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = "user.User"
 
-CORS_ORIGIN_ALLOW_ALL = True
-
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.google.GoogleOAuth2",
     "django.contrib.auth.backends.ModelBackend",
@@ -66,13 +62,15 @@ AUTHENTICATION_BACKENDS = (
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -80,29 +78,13 @@ REST_FRAMEWORK = {
     ],
 }
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Add your frontend origin here
-]
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-CORS_ALLOW_CREDENTIALS = True
 
 DJOSER = {
     "LOGIN_FIELD": "email",
@@ -117,6 +99,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     "https://www.googleapis.com/auth/userinfo.profile",
     "openid",
 ]
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = [
     "email",
     "first_name",
@@ -178,10 +161,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 cloudinary.config(
-    cloud_name="dppcf6y26",
-    api_key="925443741519848",
-    api_secret="forEme-2lHbTwoLwgXePmmjA1iU",
-    secure=True,
+    cloud_name=config("CLOUDNARY_CLOUD_NAME"),
+    api_key=config("CLOUDNARY_API_KEYS"),
+    api_secret=config("CLOUDNARY_API_SECRET"),
+    secure=config("CLOUDNARY_SECURE"),
 )
 
 STRIPE_PUBLISHABLE_KEY = "pk_test_51O03r2LkcLmKDwdAaPh2yyMFq2ZZiCVTJ4g7WVma6z7iZRmnIRQyglN8ONSGeDAMS6i2cevk8DjQQMDG82b0qM7d00cEF6tAZ7"

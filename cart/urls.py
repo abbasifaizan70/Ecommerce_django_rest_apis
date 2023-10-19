@@ -9,4 +9,5 @@ urlpatterns = [
         views.CartItemDetailView.as_view(),
         name="cart-item-detail-update-delete",
     ),
+    path("clear-cart/", views.ClearCartView.as_view(), name="clear-cart"),
 ]
