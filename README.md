@@ -38,7 +38,7 @@ Our project is a comprehensive RESTful API built using Django, designed to power
 
 1. Clone the repo:
 ```
-   git clone https://github.com/izainmirza/Zeemart-backend/
+   git clone https://github.com/abbasifaizan70/Ecommerce_django_rest_apis
 ```
 
 2. Install the required packages:
@@ -84,4 +84,4 @@ Remember, as you make changes or updates to the API, ensure the documentation re
 
 ## Contributing
 
-For Contribution you can reach me at ``iamzainmirza@gmail.com``
+For Contribution you can reach me at ``abbasi.faizan1997@gmail.com``
