@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, CartItem, TransactionHistory
+from .models import Cart, CartItem, TransactionHistory, ShippingInformation
 from product.models import Product, ProductImage
 from django.core.validators import MinValueValidator
 
@@ -57,4 +57,9 @@ class CartSerializer(serializers.ModelSerializer):
 class TransactionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionHistory
+        fields = '__all__'
+
+class ShippingInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingInformation
         fields = '__all__'

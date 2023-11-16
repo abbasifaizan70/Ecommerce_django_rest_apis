@@ -34,6 +34,8 @@ def signup(request):
         user = serializer.save()
         user.set_password(request.data["password"])
         user.save()
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
         token, _ = Token.objects.get_or_create(user=user)
         response = {
           "user" : {
@@ -104,7 +106,6 @@ def login_view(request):
     password = request.data.get("password")
 
     user = authenticate(request, username=username, password=password)
-    print(username, password)
     if user is not None:
         login(request, user)
         refresh = RefreshToken.for_user(user)

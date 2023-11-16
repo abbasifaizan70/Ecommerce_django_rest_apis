@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from django.db import IntegrityError, OperationalError
+from django.db import IntegrityError, OperationalError, ProgrammingError
 
 
 class ProductConfig(AppConfig):
@@ -13,5 +13,5 @@ class ProductConfig(AppConfig):
             Category.objects.get_or_create(
                 name="All", defaults={"description": "All categories"})
         # To handle cases like initial migration where DB table might not exist yet.
-        except (IntegrityError, OperationalError):
-            pass
+        except (IntegrityError, OperationalError, ProgrammingError):
+          pass

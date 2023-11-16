@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import generics, status
-from .serializers import CartSerializer, CartItemSerializer, TransactionHistorySerializer
+from .serializers import CartSerializer, CartItemSerializer, TransactionHistorySerializer, ShippingInformationSerializer
 from .models import Cart, CartItem, TransactionHistory
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -140,6 +140,22 @@ class UserTransactionHistoryView(APIView):
         serializer = TransactionHistorySerializer(history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class ShippingInformationView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            cart = Cart.objects.get(user=user)
+        except Cart.DoesNotExist:
+            return Response({"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        shipping_data = request.data
+        shipping_data["cart"] = cart.id
+        serializer = ShippingInformationSerializer(data=shipping_data)
+        if serializer.is_valid():
+            serializer.save(cart=cart)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @swagger_auto_schema(
     method="post",
@@ -162,12 +178,12 @@ def charge(request):
 
     try:
         payment_intent = stripe.PaymentIntent.create(
-            amount=amount,
+            amount=amount * 100,
             currency="usd",
             payment_method=request.data["stripeToken"]["token"],
             confirm=True,
             description=f"Charge for {request.user.email}",
-            return_url="http://localhost:3000/products/"
+            return_url="http://localhost:3000/shipping/"
         )
 
         cart.stripe_charge_id = payment_intent["id"]
@@ -182,7 +198,7 @@ def charge(request):
             )
             item.delete()
         cart.delete()
-        return Response({"message": "Payment successful!", "url": "http://localhost:3000/"}, status=status.HTTP_200_OK)
+        return Response({"message": "Payment successful!", "url": "http://localhost:3000/shipping/"}, status=status.HTTP_200_OK)
     except stripe.error.CardError as e:
         return Response(
             {"message": "Your card was declined!"}, status=status.HTTP_400_BAD_REQUEST

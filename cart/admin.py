@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cart, CartItem, TransactionHistory
+from .models import Cart, CartItem, TransactionHistory, ShippingInformation
 
 
 @admin.register(TransactionHistory)
@@ -16,3 +16,4 @@ class CartAdmin(admin.ModelAdmin):
     cart_total_price.short_description = 'Total Price'
 
 admin.site.register(CartItem)
+admin.site.register(ShippingInformation)

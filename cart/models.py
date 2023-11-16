@@ -34,3 +34,11 @@ class TransactionHistory(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_date = models.DateTimeField(auto_now_add=True)
     stripe_charge_id = models.CharField(max_length=50, blank=True, null=True)
+
+class ShippingInformation(models.Model):
+    cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    postcode = models.CharField(max_length=20)
+    country = models.CharField(max_length=50)
+
